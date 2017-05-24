@@ -7,22 +7,34 @@
 //
 
 #import "ViewController.h"
+#import "PlutoDatePickerView.h"
 
-@interface ViewController ()
-
+@interface ViewController () <PlutoDatePickerViewDelegate>
+@property (nonatomic, strong) PlutoDatePickerView *datePickerView;
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    self.view.backgroundColor = [UIColor grayColor];
+    self.datePickerView = [[PlutoDatePickerView alloc] initWithFrame:CGRectMake(0, 30, [UIScreen mainScreen].bounds.size.width, 110) delegate:self];
+    [self.view addSubview:self.datePickerView];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if (!self.datePickerView.isSetDate) {
+        [self.datePickerView setCurrentDate:[NSDate date]];
+    }
+}
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+#pragma mark - PlutoDatePickerViewDelegate
+
+- (void)pickerView:(PlutoDatePickerView *)pickerView didSelectTime:(PlutoDPVModel *)time {
+    if (pickerView == self.datePickerView) {
+        NSLog(@"%@-->%@-->%@", @(time.year), @(time.month), @(time.day));
+    }
 }
 
 
