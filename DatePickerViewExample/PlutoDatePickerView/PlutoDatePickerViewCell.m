@@ -44,7 +44,7 @@
     } else {
         if (isSelected) {
             self.selectedBackView.hidden = NO;
-            self.selectedBackView.backgroundColor = DWThemeColor;
+            self.selectedBackView.backgroundColor = [UIColor colorWithRed:87.0 / 255.0 green:126.0 / 255.0 blue:255.0 / 255.0 alpha:1.0];
             self.theLabel.textColor = [UIColor whiteColor];
         } else {
             self.selectedBackView.hidden = YES;

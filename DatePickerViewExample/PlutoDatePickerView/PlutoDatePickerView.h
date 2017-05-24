@@ -21,15 +21,15 @@
 
 @class PlutoDatePickerView;
 
-@protocol PlutoPickerViewDelegate <NSObject>
+@protocol PlutoDatePickerViewDelegate <NSObject>
 - (void)pickerView:(PlutoDatePickerView *)pickerView didSelectTime:(PlutoDPVModel *)time;
 @end
 
 @interface PlutoDatePickerView : UIView
 @property (nonatomic, assign) BOOL isSetDate;
-@property (nonatomic, weak) id<PlutoPickerViewDelegate> delegate;
+@property (nonatomic, weak) id<PlutoDatePickerViewDelegate> delegate;
 ///初始化
-- (instancetype)initWithFrame:(CGRect)frame delegate:(id<PlutoPickerViewDelegate>)delegate;
+- (instancetype)initWithFrame:(CGRect)frame delegate:(id<PlutoDatePickerViewDelegate>)delegate;
 ///设置新的时间
 - (void)setCurrentDate:(NSDate *)date;
 
