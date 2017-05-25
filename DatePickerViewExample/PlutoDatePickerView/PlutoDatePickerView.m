@@ -91,14 +91,12 @@
             }
         } else if (self.weekCollectionView.hidden == YES && self.monthCollectionView.hidden == NO) {
             if (self.frame.size.height < 70 + self.monthCollectionView.frame.size.height) {
-                CGFloat changeY = -monthOffset + offset - 10;
-                CGFloat changeHeight = monthOffset;
-                if (monthOffset < 40) {
-                    changeY = 0;
-                    changeHeight = self.monthCollectionView.frame.size.height;
-                }
-                self.monthCollectionView.frame = CGRectMake(self.monthCollectionView.frame.origin.x, 70 + changeY, self.monthCollectionView.frame.size.width, self.monthCollectionView.frame.size.height);
-                self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 110 + ((offset - 10) / changeHeight) * (self.monthCollectionView.frame.size.height - 40));
+                CGFloat changeY = monthOffset < 40 ? 0 : monthOffset / 40.0 * 40.0;
+                CGFloat changeHeight = self.monthCollectionView.frame.size.height - 40;
+                CGFloat panOffset = offset - 10;
+                CGFloat ratio = panOffset / changeHeight;
+                self.monthCollectionView.frame = CGRectMake(self.monthCollectionView.frame.origin.x, 70 - changeY * (1 - ratio), self.monthCollectionView.frame.size.width, self.monthCollectionView.frame.size.height);
+                self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 110 + changeHeight * ratio);
             } else {
                 self.monthCollectionView.frame = CGRectMake(self.monthCollectionView.frame.origin.x, 70, self.monthCollectionView.frame.size.width, self.monthCollectionView.frame.size.height);
                 self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.monthCollectionView.frame.size.height + 70);
@@ -113,14 +111,12 @@
                 [self calWeekDateArray];
             }
             if (self.frame.size.height > 110) {
-                CGFloat changeY = offset + 10;
-                CGFloat changeHeight = monthOffset;
-                if (monthOffset < 40) {
-                    changeY = 0;
-                    changeHeight = self.monthCollectionView.frame.size.height;
-                }
-                self.monthCollectionView.frame = CGRectMake(self.monthCollectionView.frame.origin.x, 70 + changeY, self.monthCollectionView.frame.size.width, self.monthCollectionView.frame.size.height);
-                self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 70 + self.monthCollectionView.frame.size.height - ((-offset - 10) / changeHeight) * (self.monthCollectionView.frame.size.height - 40));
+                CGFloat changeY = monthOffset < 40 ? 0 : monthOffset / 40.0 * 40.0;
+                CGFloat changeHeight = self.monthCollectionView.frame.size.height - 40;
+                CGFloat panOffset = -offset - 10;
+                CGFloat ratio = panOffset / changeHeight;
+                self.monthCollectionView.frame = CGRectMake(self.monthCollectionView.frame.origin.x, 70 - changeY * ratio, self.monthCollectionView.frame.size.width, self.monthCollectionView.frame.size.height);
+                self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 110 + changeHeight * (1 - ratio));
             } else {
                 self.weekCollectionView.hidden = NO;
                 self.monthCollectionView.hidden = YES;
@@ -164,6 +160,7 @@
     self.weekEndDay = [self getModelWithDate:[NSDate dateWithTimeInterval:(6 - self.selectedDate.weekDay) * 24 * 60 * 60 sinceDate:[self getDateWithModel:self.selectedDate]]];
     [self calWeekDateArray];
     [self calCurrentMonthStartDay];
+    [self calMonthDateArray];
     self.topLabel.text = [NSString stringWithFormat:@"%ld-%02ld", (long)self.monthStartDay.year, (long)self.monthStartDay.month];
 }
 
