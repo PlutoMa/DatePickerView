@@ -17,6 +17,8 @@
 @property (nonatomic, assign) NSInteger day;
 ///星期几
 @property (nonatomic, assign) NSInteger weekDay;
+///农历
+@property (nonatomic, copy) NSString *chineseDay;
 @end
 
 @class PlutoDatePickerView;

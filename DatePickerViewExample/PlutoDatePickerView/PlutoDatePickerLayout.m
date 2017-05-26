@@ -17,7 +17,7 @@
 - (void)prepareLayout {
     [super prepareLayout];
     
-    self.itemSize = CGSizeMake(self.collectionView.frame.size.width / 7.0, 40);
+    self.itemSize = CGSizeMake(self.collectionView.frame.size.width / 7.0, 45);
     
     [self.attributeArray removeAllObjects];
     for (int index = 0; index < [self.collectionView numberOfItemsInSection:0]; index++) {

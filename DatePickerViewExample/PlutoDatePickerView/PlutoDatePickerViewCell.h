@@ -9,5 +9,5 @@
 #import <UIKit/UIKit.h>
 
 @interface PlutoDatePickerViewCell : UICollectionViewCell
-- (void)setTitle:(NSString *)title isWeekend:(BOOL)isWeekend isSelected:(BOOL)isSelected isGray:(BOOL)isGray;
+- (void)setTitle:(NSString *)title subTitle:(NSString *)subTitle isWeekend:(BOOL)isWeekend isSelected:(BOOL)isSelected isGray:(BOOL)isGray;
 @end

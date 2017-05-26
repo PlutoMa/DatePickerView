@@ -33,6 +33,9 @@
 ///当前时间数组
 @property (nonatomic, strong) NSMutableArray<PlutoDPVModel *> *currentWeekDateArray;
 @property (nonatomic, strong) NSMutableArray<PlutoDPVModel *> *currentMonthDateArray;
+@property (nonatomic, strong) NSCalendar *chineseCalendar;
+@property (nonatomic, copy) NSArray<NSString *> *chineseMonths;
+@property (nonatomic, copy) NSArray<NSString *> *chineseDays;
 @end
 
 @implementation PlutoDatePickerView
@@ -83,7 +86,7 @@
                 for (int i = (int)self.currentMonthDateArray.count / 3; i < (int)self.currentMonthDateArray.count / 3 * 2; i = i + 7) {
                     PlutoDPVModel *model = [self.currentMonthDateArray objectAtIndex:i];
                     if (model.year == self.weekStartDay.year && model.month == self.weekStartDay.month && model.day == self.weekStartDay.day) {
-                        monthOffset = 40.0 * (i - self.currentMonthDateArray.count / 3) / 7;
+                        monthOffset = 45.0 * (i - self.currentMonthDateArray.count / 3) / 7;
                         break;
                     }
                 }
@@ -91,12 +94,12 @@
             }
         } else if (self.weekCollectionView.hidden == YES && self.monthCollectionView.hidden == NO) {
             if (self.frame.size.height < 70 + self.monthCollectionView.frame.size.height) {
-                CGFloat changeY = monthOffset < 40 ? 0 : monthOffset / 40.0 * 40.0;
-                CGFloat changeHeight = self.monthCollectionView.frame.size.height - 40;
+                CGFloat changeY = monthOffset < 40 ? 0 : monthOffset / 45.0 * 45.0;
+                CGFloat changeHeight = self.monthCollectionView.frame.size.height - 45;
                 CGFloat panOffset = offset - 10;
                 CGFloat ratio = panOffset / changeHeight;
                 self.monthCollectionView.frame = CGRectMake(self.monthCollectionView.frame.origin.x, 70 - changeY * (1 - ratio), self.monthCollectionView.frame.size.width, self.monthCollectionView.frame.size.height);
-                self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 110 + changeHeight * ratio);
+                self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 115 + changeHeight * ratio);
             } else {
                 self.monthCollectionView.frame = CGRectMake(self.monthCollectionView.frame.origin.x, 70, self.monthCollectionView.frame.size.width, self.monthCollectionView.frame.size.height);
                 self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.monthCollectionView.frame.size.height + 70);
@@ -111,16 +114,16 @@
                 [self calWeekDateArray];
             }
             if (self.frame.size.height > 110) {
-                CGFloat changeY = monthOffset < 40 ? 0 : monthOffset / 40.0 * 40.0;
-                CGFloat changeHeight = self.monthCollectionView.frame.size.height - 40;
+                CGFloat changeY = monthOffset < 45 ? 0 : monthOffset / 45.0 * 45.0;
+                CGFloat changeHeight = self.monthCollectionView.frame.size.height - 45;
                 CGFloat panOffset = -offset - 10;
                 CGFloat ratio = panOffset / changeHeight;
                 self.monthCollectionView.frame = CGRectMake(self.monthCollectionView.frame.origin.x, 70 - changeY * ratio, self.monthCollectionView.frame.size.width, self.monthCollectionView.frame.size.height);
-                self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 110 + changeHeight * (1 - ratio));
+                self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 115 + changeHeight * (1 - ratio));
             } else {
                 self.weekCollectionView.hidden = NO;
                 self.monthCollectionView.hidden = YES;
-                self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 110);
+                self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 115);
             }
         }
     }
@@ -134,7 +137,7 @@
             self.monthCollectionView.hidden = NO;
         } else if (moveType == 2) {
             [UIView animateWithDuration:0.2 animations:^{
-                self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 110);
+                self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 115);
                 self.monthCollectionView.frame = CGRectMake(self.monthCollectionView.frame.origin.x, 70 - monthOffset, self.monthCollectionView.frame.size.width, self.monthCollectionView.frame.size.height);
             } completion:^(BOOL finished) {
                 self.weekCollectionView.hidden = NO;
@@ -177,12 +180,7 @@
         } else {
             todayDate = [NSDate dateWithTimeInterval:24 * 60 * 60 * (i - 7) sinceDate:[self getDateWithModel:self.weekStartDay]];
         }
-        NSString *dateStr = [self.dateFormatter stringFromDate:todayDate];
-        PlutoDPVModel *model = [[PlutoDPVModel alloc] init];
-        model.year = [[dateStr substringToIndex:4] integerValue];
-        model.month = [[dateStr substringWithRange:NSMakeRange(4, 2)] integerValue];
-        model.day = [[dateStr substringFromIndex:dateStr.length - 2] integerValue];
-        model.weekDay = (i + 7) % 7;
+        PlutoDPVModel *model = [self getModelWithDate:todayDate];
         [self.currentWeekDateArray addObject:model];
     }
     [self.weekCollectionView reloadData];
@@ -209,9 +207,9 @@
     if ((offset + dayÇount) % 7 != 0) {
         weekCount = weekCount + 1;
     }
-    self.monthCollectionView.frame = CGRectMake(self.monthCollectionView.frame.origin.x, self.monthCollectionView.frame.origin.y, self.monthCollectionView.frame.size.width, 40 * weekCount);
+    self.monthCollectionView.frame = CGRectMake(self.monthCollectionView.frame.origin.x, self.monthCollectionView.frame.origin.y, self.monthCollectionView.frame.size.width, 45 * weekCount);
     if (self.weekCollectionView.hidden == YES && self.monthCollectionView.hidden == NO) {
-        self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 70 + 40 * weekCount);
+        self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, 70 + 45 * weekCount);
     }
     //得到要显示的天数
     NSInteger showDayCount = 7 * weekCount;
@@ -269,7 +267,7 @@
             isGray = YES;
         }
     }
-    [cell setTitle:[NSString stringWithFormat:@"%ld", (long)model.day] isWeekend:isWeekend isSelected:isSelected isGray:isGray];
+    [cell setTitle:[NSString stringWithFormat:@"%ld", (long)model.day] subTitle:model.chineseDay isWeekend:isWeekend isSelected:isSelected isGray:isGray];
     return cell;
 }
 
@@ -326,11 +324,11 @@
 - (void)setupUI {
     self.clipsToBounds = YES;
     UICollectionViewFlowLayout *layout1 = [[UICollectionViewFlowLayout alloc] init];
-    layout1.itemSize = CGSizeMake(self.frame.size.width / 7.0, 40);
+    layout1.itemSize = CGSizeMake(self.frame.size.width / 7.0, 45);
     layout1.minimumLineSpacing = 0.0f;
     layout1.minimumInteritemSpacing = 0.0f;
     layout1.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-    self.weekCollectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 70, self.frame.size.width, 40) collectionViewLayout:layout1];
+    self.weekCollectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 70, self.frame.size.width, 45) collectionViewLayout:layout1];
     self.weekCollectionView.backgroundColor = [UIColor whiteColor];
     self.weekCollectionView.showsVerticalScrollIndicator = NO;
     self.weekCollectionView.showsHorizontalScrollIndicator = NO;
@@ -345,7 +343,7 @@
     layout2.minimumLineSpacing = 0.0f;
     layout2.minimumInteritemSpacing = 0.0f;
     layout2.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-    self.monthCollectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 70, self.frame.size.width, 40) collectionViewLayout:layout2];
+    self.monthCollectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 70, self.frame.size.width, 45) collectionViewLayout:layout2];
     self.monthCollectionView.backgroundColor = [UIColor whiteColor];
     self.monthCollectionView.showsVerticalScrollIndicator = NO;
     self.monthCollectionView.showsHorizontalScrollIndicator = NO;
@@ -393,6 +391,15 @@
     NSCalendar *calendar = [NSCalendar currentCalendar];
     NSDateComponents *comp = [calendar components:NSWeekdayCalendarUnit fromDate:date];
     model.weekDay = [comp weekday] - 1;
+    
+    unsigned unitFlags = NSCalendarUnitMonth |  NSCalendarUnitDay;
+    NSDateComponents *localeComp = [self.chineseCalendar components:unitFlags fromDate:date];
+    NSString *m_str = [self.chineseMonths objectAtIndex:localeComp.month -1 ];
+    NSString *d_str = [self.chineseDays objectAtIndex:localeComp.day - 1];
+    if ([d_str isEqualToString:@"初一"]) {
+        d_str = m_str;
+    }
+    model.chineseDay = d_str;
     return model;
 }
 
@@ -419,7 +426,7 @@
     if (self.monthStartDay.year == self.selectedDate.year && self.monthStartDay.month == self.selectedDate.month) {
         self.weekStartDay = [self getModelWithDate:[NSDate dateWithTimeInterval:-self.selectedDate.weekDay * 24 * 60 * 60 sinceDate:[self getDateWithModel:self.selectedDate]]];
         self.weekEndDay = [self getModelWithDate:[NSDate dateWithTimeInterval:(6 - self.selectedDate.weekDay) * 24 * 60 * 60 sinceDate:[self getDateWithModel:self.selectedDate]]];
-        monthOffset = (self.selectedDate.day - self.selectedDate.weekDay + self.monthStartDay.weekDay) / 7 * 40.0f;
+        monthOffset = (self.selectedDate.day - self.selectedDate.weekDay + self.monthStartDay.weekDay) / 7 * 45.0f;
     } else {
         self.weekStartDay = [self.currentMonthDateArray objectAtIndex:self.currentMonthDateArray.count / 3];
         self.weekEndDay = [self.currentMonthDateArray objectAtIndex:self.currentMonthDateArray.count / 3 + 6];
@@ -500,6 +507,32 @@
         [_dateFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"zh_CN"]];
     }
     return _dateFormatter;
+}
+
+- (NSCalendar *)chineseCalendar {
+    if (!_chineseCalendar) {
+        _chineseCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierChinese];
+    }
+    return _chineseCalendar;
+}
+
+- (NSArray<NSString *> *)chineseMonths {
+    if (!_chineseMonths) {
+        _chineseMonths = [NSArray arrayWithObjects:
+                          @"正月", @"二月", @"三月", @"四月", @"五月", @"六月", @"七月", @"八月",
+                          @"九月", @"十月", @"冬月", @"腊月", nil];
+    }
+    return _chineseMonths;
+}
+
+- (NSArray<NSString *> *)chineseDays {
+    if (!_chineseDays) {
+        _chineseDays = [NSArray arrayWithObjects:
+                        @"初一", @"初二", @"初三", @"初四", @"初五", @"初六", @"初七", @"初八", @"初九", @"初十",
+                        @"十一", @"十二", @"十三", @"十四", @"十五", @"十六", @"十七", @"十八", @"十九", @"二十",
+                        @"廿一", @"廿二", @"廿三", @"廿四", @"廿五", @"廿六", @"廿七", @"廿八", @"廿九", @"三十",  nil];
+    }
+    return _chineseDays;
 }
 
 @end

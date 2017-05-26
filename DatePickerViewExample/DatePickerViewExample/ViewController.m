@@ -18,7 +18,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor grayColor];
-    self.datePickerView = [[PlutoDatePickerView alloc] initWithFrame:CGRectMake(0, 30, [UIScreen mainScreen].bounds.size.width, 110) delegate:self];
+    self.datePickerView = [[PlutoDatePickerView alloc] initWithFrame:CGRectMake(0, 30, [UIScreen mainScreen].bounds.size.width, 115) delegate:self];
     [self.view addSubview:self.datePickerView];
 }
 
